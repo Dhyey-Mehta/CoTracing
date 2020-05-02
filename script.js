@@ -55,9 +55,10 @@ for(i in patient)
   for(j in placeVisit)
   {
     const bounds = 3000;
-    const quarintineTime = 86400000;
-    if((Math.abs(i.latitude - j.latitude) <= bounds) && (Math.abs(i.longitude - j.longitude) <= bounds)){
-      if(Math.abs(i.endTime-j.startTime)<8640000)
+    const quarantineTime = 86400000;
+    if((Math.abs(i.latitude - j.latitude) <= bounds) && (Math.abs(i.longitude - j.longitude) <= bounds))
+    {
+      if(Math.abs(i.endTime-j.startTime) <= quarantineTime)
       {
         commonLocations[commonLocations.length] = {latitude: j.latitude, longitude: j.longitude, time: j.startTime}
       }
