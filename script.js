@@ -6,10 +6,10 @@ function loadJSON(files){
   let fr = new FileReader();
   
   fr.onload = function(e) { 
-    console.log(e);
     var result = JSON.parse(e.target.result);
     var formatted = JSON.stringify(result, null, 2);
-    document.getElementById('result').value = formatted;
+    document.getElementById('result').innerHTML = formatted;
+    console.log(result);
   }
   
   console.log("Attempting to load "+files[0].name);
@@ -29,6 +29,8 @@ function compute(JSONToParse){
       }
     }
 }
+
+/*
 let patient = [{latitude:438250504, longitude:-793731613, startTime:1585789139637, endTime:1586380498044}];
 let commonLocations = []
 
@@ -36,11 +38,13 @@ for(i in patient)
 {
   for(j in placeVisit)
   {
-    let latLowerBound = Math.abs(i.latitude)-3000;
-    let latUpperBound = Math.abs(i.latitude)+3000;
-    let longLowerBound = Math.abs(i.longitude)-3000;
-    let longUpperBound = Math.abs(i.longitude)+3000; // Could be negative, switch lower and upper bound
-    const quarantineTime = 86400000;
-    if(j.latitude )
+    const bounds = 3000
+    let latLowerBound = Math.abs(i.latitude) - bounds;
+    let latUpperBound = Math.abs(i.latitude) + bounds;
+    let longLowerBound = Math.abs(i.longitude) - bounds;
+    let longUpperBound = Math.abs(i.longitude) + bounds;
+    if(j.latitude)
   }
 }
+
+*/
