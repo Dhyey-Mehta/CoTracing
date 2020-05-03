@@ -81,7 +81,7 @@
 
       var map, heatmap;
 
-      function initMap() {
+      async function initMap() {
         map = new google.maps.Map(document.getElementById('map'), {
           zoom: 13,
           center: {lat: 37.775, lng: -122.434},
@@ -89,7 +89,7 @@
         });
 
         heatmap = new google.maps.visualization.HeatmapLayer({
-          data: getPoints(),
+          data: await getPoints(),
           map: map
         });
       }
@@ -127,7 +127,7 @@
       }
 
       // Heatmap data: 500 Points
-      function getPoints() {
+      async function getPoints() {
         let results = [];
         //new google.maps.LatLng(37.782551, -122.445368)
         let patientCounter = 0;
