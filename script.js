@@ -136,7 +136,7 @@ async function compare(placeVisitPromise){
     document.getElementById('selectFiles').style.display = "none";
     let times = " time. ";
     if(commonLocations.length > 1) { times = " times. "; }
-    document.getElementById('feedback').innerHTML = "You have been in contact with COVID-19 patients "  + commonLocations.length + times + ' <a href="./about.html">Click Here to Learn Potential Next Steps</a>';
+    document.getElementById('feedback').innerHTML = "You have been in contact with COVID-19 patients "  + commonLocations.length + times + ' <a href="https://www.who.int/health-topics/coronavirus">Click Here to Learn Potential Next Steps</a>';
     document.getElementById('feedback').style.color = "red";
     document.getElementById('toMap').classList.remove("map-hidden");
     export2txt(commonLocations); 
