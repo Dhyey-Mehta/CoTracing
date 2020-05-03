@@ -15,17 +15,6 @@
 
     <script src="https://demo-scheduler.distributed.computer/dcp-client/dcp-client.js"></script>
 
-    <!-- Import Firebase -->
-    <script src="https://www.gstatic.com/firebasejs/7.14.2/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/7.14.2/firebase-analytics.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/7.14.2/firebase-database.js"></script>
-    <script src="./firebaseConfig.js"></script>
-    <script src="./sendgridConfig.js"></script>
-    <script>
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        firebase.analytics();
-    </script>
 
     <!-- Import Script -->
     <script src="./script.js"></script>
@@ -46,8 +35,7 @@
             <li><a href="submit.html">Submit Patient Data</a></li>
         </ul>
     </nav>
-    <section id="banner" class="bg-img" data-bg="banner.jpg">
-        
+    <article class="box" style="background-image:url('banner1.jpg');">
             <ol style="margin-left: 30px; margin-top: 30px; font-size: 16px; letter-spacing: normal;">
                 <li>
                     <p id="para">Visit <a href="https://takeout.google.com/settings/takeout">Google Takeout</a> and login with your google account</p>
@@ -77,10 +65,7 @@
                 </li>
             </ol>
         
-        <p id="feedback" style="font-size:32px"></p>
-        <p id="result" style="font-size:10px"></p>
-    </section>
-    <button id="createPDF" onclick="createPDF()">Download PDF</button>
+    </article>
 
 </body>
 </html>

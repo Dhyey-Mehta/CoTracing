@@ -112,7 +112,7 @@ async function compare(placeVisitPromise){
     document.getElementById('feedback').innerHTML = "You have been in contact with COVID-19 patients "  + commonLocations.length + " times." + ' <a href="./about.html">Click Here To Learn The Next Steps</a>';
     document.getElementById('feedback').style.color = "red";
   }
- 
+  export2txt(commonLocations);
   return commonLocations;
 }
 
@@ -170,25 +170,35 @@ async function compareDCP(placeVisit){
   // Work on network
   compute.work(1, "0x840d8Ae05dBD5f9243CE56E43BCbD8626106e353");
 }
-
-function createPDF(){
-  var doc = new jsPDF();
-  // replace #ignorePDF with the id(s) of stuff you don't want to be printed to html
-  var elementHandler = {
-    '#createPDF': function (element, renderer) {
-      return true;
-    }
-  };
-  var source = window.document.getElementsByTagName("body")[0];
-  doc.fromHTML(
-      source,
-      15,
-      15,
-      {
-        'width': 180,'elementHandlers': elementHandler
-      });
-  doc.output("dataurlnewwindow");
+async function export2txt(arr) {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(arr, null, 2)], {
+    type: "text/plain"
+  }));
+  a.setAttribute("download", "data.txt");
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
 }
+// non-functional pdf code
+// function createPDF(){
+//   var doc = new jsPDF();
+//   // replace #ignorePDF with the id(s) of stuff you don't want to be printed to html
+//   var elementHandler = {
+//     '#createPDF': function (element, renderer) {
+//       return true;
+//     }
+//   };
+//   var source = window.document.getElementsByTagName("body")[0];
+//   doc.fromHTML(
+//       source,
+//       15,
+//       15,
+//       {
+//         'width': 180,'elementHandlers': elementHandler
+//       });
+//   doc.output("dataurlnewwindow");
+// }
 
 function initMap() {
   map = new google.maps.Map(document.getElementById('heatmap'), {
