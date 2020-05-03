@@ -143,9 +143,9 @@
                 let loc = patientJSON[j];
                 console.log(loc.latitude/10000000 + " " + loc.longitude/10000000);
                 results.push(new google.maps.LatLng(loc.latitude/10000000, loc.longitude/10000000)); 
-                
             }
         }
+        map.panTo(results[0]);
         return results;
       }
     </script>
