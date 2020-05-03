@@ -166,9 +166,7 @@ async function runDCPInner(placeVisitPromise)
   {
     placeVisitArr.push(placeVisit);
   }
-  console.log(placeVisitArr);
   let result = await compareDCP(placeVisitArr, patients);
-  console.log(result);
   return result;
   /*let resultsArr = await compareDCP(placeVisitArr, patients);
   let returningArr = [];
@@ -193,7 +191,6 @@ async function runDCPOuter(placeVisit)
   document.getElementById('feedback').style.color = "yellow";
 
   let resultsArr = await runDCPInner(placeVisit);
-  console.log(resultsArr);
   let commonLocations = [];
 
   for(i = 0; i < resultsArr.length; i++)
@@ -258,9 +255,16 @@ async function compareDCP(placeVisit, patients){
   );
 
   // Listen for events
+  job.addListener('status', event => {
+    if (event.distributed < 1) {
+    	console.debug("Distributing to workers...");
+    } else {
+  	  console.debug(`${event.computed} out of ${event.total} results computed. ${event.distributed} distributed.`);
+    }
+  });
+
   let resultHandle = await job.exec(0.00001);
   let results = resultHandle.values();
-  console.log(results);
   return results;
 }
 async function export2txt(arr) {
@@ -308,9 +312,7 @@ function geocodeLatLng(lat, lng) {
   var geocoder = new google.maps.Geocoder;
   return new Promise(function(resolve, reject) {
     geocoder.geocode({'location': latlng}, function(results, status) {
-      console.log(status);
       if (status === 'OK') {
-          console.log(results);
           resolve(results[0].formatted_address);
       } else {
           // reject(new Error('Couldnt\'t find the location ' + latlng));
