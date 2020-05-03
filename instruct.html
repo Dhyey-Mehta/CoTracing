@@ -4,6 +4,7 @@
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="assets/css/main.css" />
+    <link rel="stylesheet" href="assets/css/secondary.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.3/jquery.min.js" integrity="sha256-rsPUGdUPBXgalvIj4YKJrrUlmLXbOb6Cp7cdxn1qeUc=" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/jquery.scrolly@0.0.1/jquery.scrolly.js" integrity="sha256-GR8ZQMA56bzRVL9JGnkVKucJYxzZ9Eiqj9GcXtJ+ikk=" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.scrollex/0.2.1/jquery.scrollex.min.js" integrity="sha256-/CW3X7P8i0J1ZBO+OH4NemAoExJSg9I4RVGWHXPqeE4=" crossorigin="anonymous"></script>
@@ -12,14 +13,23 @@
     <script src="assets/js/util.js"></script>
     <script src="assets/js/main.js"></script>
 
+    <script src="https://demo-scheduler.distributed.computer/dcp-client/dcp-client.js"></script>
+
     <!-- Import Firebase -->
     <script src="https://www.gstatic.com/firebasejs/7.14.2/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/7.14.2/firebase-analytics.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.14.2/firebase-database.js"></script>
+    <script src="./firebaseConfig.js"></script>
+    <script src="./sendgridConfig.js"></script>
     <script>
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         firebase.analytics();
     </script>
+
+    <!-- Import Script -->
+    <script src="./script.js"></script>
+
     <title>CoTracing</title>
 </head>
 <body>
@@ -36,14 +46,41 @@
             <li><a href="submit.html">Submit Patient Data</a></li>
         </ul>
     </nav>
-
     <section id="banner" class="bg-img" data-bg="banner.jpg">
-        <div class="inner">
-            <header>
-                <h1>Concerned?</h1>
-                <h2>So are we</h2>
-            </header>
-        </div>
+        
+            <ol style="margin-left: 30px; margin-top: 30px; font-size: 16px; letter-spacing: normal;">
+                <li>
+                    <p id="para">Visit <a href="https://takeout.google.com/settings/takeout">Google Takeout</a> and login with your google account</p>
+                </li>
+                <li>
+                    <p id="para">Locate Location History and make sure that the check mark next to it is selected</p>
+                    <img src="./images/screenshot1.png">
+                </li>
+                <li>
+                    <p id="para">Follow through with the rest of the steps as displayed on screen</p>
+                </li>
+                <li>
+                    <p id="para">When the takeout is done, you should receive an email to download the contents of the takeout within a few minutes
+                    </p>
+                    <img src="./images/screenshot2.png">
+                </li>
+                <li>
+                    <p id="para">Download and extract the archive
+                    </p>
+                </li>
+                <li>
+                    <p id="para">Locate the .json file for the month you want to test under <strong>/Location History/Semantic Location History/2020</strong>
+                    </p>
+                </li>
+                <li>
+                    <p id="para">Upload the relevant file to the web service</p>
+                </li>
+            </ol>
+        
+        <p id="feedback" style="font-size:32px"></p>
+        <p id="result" style="font-size:10px"></p>
     </section>
+    <button id="createPDF" onclick="createPDF()">Download PDF</button>
+
 </body>
 </html>

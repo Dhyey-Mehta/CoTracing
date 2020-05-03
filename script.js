@@ -10,7 +10,7 @@ async function loadJSON(files){
   //---- FOR TESTING ----
   //var formatted = JSON.stringify(result, null, 2);
   //document.getElementById('result').innerHTML = formatted;
-  console.debug(result);
+  //console.debug(result);
   //-- END FOR TESTING --
   return result;
 }
@@ -40,7 +40,7 @@ async function compute(JSONPromise){
       }
     }
     console.debug(placeVisit);
-    document.getElementById('result').innerHTML = JSON.stringify(placeVisit);
+    //document.getElementById('result').innerHTML = JSON.stringify(placeVisit);
     
     return placeVisit;
 }
@@ -69,12 +69,13 @@ async function SendEmail(address, subject, body){
   fetch(req);
 }
 
-async function compare(placeVisit){
+async function compare(placeVisitPromise){
+  let placeVisit = await placeVisitPromise;
   let patientCounter = 0;
   let database = firebase.database();
   patientCounter = (await database.ref("patients/Counter").once("value")).val();
   
-  console.log(patientCounter);
+  console.debug(patientCounter);
   let commonLocations = []
 
   for(i=0;i<patientCounter;i++)
@@ -83,6 +84,7 @@ async function compare(placeVisit){
       
     for(j= 0; j < patientJSON.Counter; j++)
     {
+      //console.log(i + " " +j);
       for(k=0;k<placeVisit.length;k++)
       {
         let loc = placeVisit[k];
@@ -101,7 +103,16 @@ async function compare(placeVisit){
       }
     }
   }
-  document.getElementById("feedback").innerHTML = "New text!";
+  if(commonLocations.length == 0){
+    document.getElementById('feedback').innerHTML = "You have not been in contact with COVID-19 patients.";
+    document.getElementById('feedback').style.color = "green";
+  }
+  else
+  {
+    document.getElementById('feedback').innerHTML = "You have been in contact with COVID-19 patients "  + commonLocations.length + " times." + ' <a href="./about.html">Click Here To Learn The Next Steps</a>';
+    document.getElementById('feedback').style.color = "red";
+  }
+ 
   return commonLocations;
 }
 
@@ -112,14 +123,14 @@ async function compareDCP(placeVisit){
   let database = firebase.database();
   patientCounter = (await database.ref("patients/Counter").once("value")).val();
   
-  console.log(patientCounter);
+  console.debug(patientCounter);
   
   // Create Job
   let job = compute.for(0, patientCounter,
-    function(i) {
+    function(i, placeVisit) {
       progress(1);
       let commonLocations = [];
-      let patientJSON = {}// (await database.ref("patients/"+i).once("value")).val();
+      let patientJSON = {};//(await database.ref("patients/"+i).once("value")).val();
       for(j= 0; j < patientJSON.Counter; j++)
       {
         for(k=0; k<placeVisit.length; k++)
@@ -139,16 +150,49 @@ async function compareDCP(placeVisit){
           }
         }
       }
-    }
+    }, placeVisit
   )
 
   // Listen for events
   job.on("status", console.log);
 
   // Send job to network
-  job.exec(0.00001).then(console.log);
+  let resultHandle = await job.exec(0.00001);
+  let results = resultHandle.values();
+  for(q = 0; q < results.length; q++)
+  {
+    for(result in results[q])
+    {
+      commonLocations.push(result);
+    }
+  }
 
   // Work on network
-  compute.work(4, "0x840d8Ae05dBD5f9243CE56E43BCbD8626106e353");
+  compute.work(1, "0x840d8Ae05dBD5f9243CE56E43BCbD8626106e353");
 }
 
+function createPDF(){
+  var doc = new jsPDF();
+  // replace #ignorePDF with the id(s) of stuff you don't want to be printed to html
+  var elementHandler = {
+    '#createPDF': function (element, renderer) {
+      return true;
+    }
+  };
+  var source = window.document.getElementsByTagName("body")[0];
+  doc.fromHTML(
+      source,
+      15,
+      15,
+      {
+        'width': 180,'elementHandlers': elementHandler
+      });
+  doc.output("dataurlnewwindow");
+}
+
+function initMap() {
+  map = new google.maps.Map(document.getElementById('heatmap'), {
+      center: {lat: -34.397, lng: 150.644},
+      zoom: 8
+  });
+}

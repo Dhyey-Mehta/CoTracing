@@ -12,20 +12,33 @@
     <script src="assets/js/util.js"></script>
     <script src="assets/js/main.js"></script>
 
+    <script src="https://demo-scheduler.distributed.computer/dcp-client/dcp-client.js"></script>
+
     <!-- Import Firebase -->
     <script src="https://www.gstatic.com/firebasejs/7.14.2/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/7.14.2/firebase-analytics.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.14.2/firebase-database.js"></script>
+    <script src="./firebaseConfig.js"></script>
+    <script src="./sendgridConfig.js"></script>
     <script>
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         firebase.analytics();
     </script>
+
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDZZ3x62zhq7pTLmJB3cSrPyCyApkMnWbE&callback=initMap"></script>
+
+    <!-- Import Script -->
+    <script src="./script.js"></script>
+
     <title>CoTracing</title>
 </head>
 <body>
     <header id="header">
+    
         <div class="logo"><a href="index.html">CoTracing<span> by DEGS</span></a></div>
         <a href="#menu"><span>Menu</span></a>
+       
     </header>
 
     <nav id="menu">
@@ -36,14 +49,14 @@
             <li><a href="submit.html">Submit Patient Data</a></li>
         </ul>
     </nav>
-
     <section id="banner" class="bg-img" data-bg="banner.jpg">
         <div class="inner">
-            <header>
-                <h1>Concerned?</h1>
-                <h2>So are we</h2>
-            </header>
+            <h2>Submit Data of Patient who has been confirmed to have Covid-19</h2>
+            <input type="file" id="selectFiles" value="Import" accept="application/json" /> <!--application/geo+json would be more appropriate but doesnt autofill file ext-->
+            <button id="import" onclick="SendtoDB(compute(loadJSON(document.getElementById('selectFiles').files)))">Import</button>
+            
         </div>
+      
     </section>
 </body>
 </html>
