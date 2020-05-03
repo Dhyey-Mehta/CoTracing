@@ -80,13 +80,14 @@ async function SendtoDB(placeVisitPromise){
 
 }
 
-async function SendEmail(address, subject, body){
-  let headers = new Headers({'Content-Type': 'application/json', 'Authorization': 'Bearer '+SENDGRID_API_KEY})
-  let req = new Request("https://api.sendgrid.com/v3/mail/send", {method: "POST", headers, body: '{"personalizations": [{"to": [{"email": "' + address + '"}]}],"from": {"email": "tohacks@seang.win"},"subject": "' + subject + '","content": [{"type": "text/plain", "value": "' + body + '"}]}'});
-  fetch(req);
-}
+// broken from CORS
+// async function SendEmail(address, subject, body){
+//   let headers = new Headers({'Content-Type': 'application/json', 'Authorization': 'Bearer '+SENDGRID_API_KEY})
+//   let req = new Request("https://api.sendgrid.com/v3/mail/send", {method: "POST", headers, body: '{"personalizations": [{"to": [{"email": "' + address + '"}]}],"from": {"email": "tohacks@seang.win"},"subject": "' + subject + '","content": [{"type": "text/plain", "value": "' + body + '"}]}'});
+//   fetch(req);
+// }
 
-// LEGACY IMPLEMENTATION
+// LEGACY IMPLEMENTATION - for reference only
 async function compare(placeVisitPromise){
   let placeVisit = await placeVisitPromise;
   let patientCounter = 0;
@@ -135,7 +136,7 @@ async function compare(placeVisitPromise){
     document.getElementById('selectFiles').style.display = "none";
     let times = " time. ";
     if(commonLocations.length > 1) { times = " times. "; }
-    document.getElementById('feedback').innerHTML = "You have been in contact with COVID-19 patients "  + commonLocations.length + times + ' <a href="./about.html">Click Here To Learn The Next Steps</a>';
+    document.getElementById('feedback').innerHTML = "You have been in contact with COVID-19 patients "  + commonLocations.length + times + ' <a href="./about.html">Click Here to Learn Potential Next Steps</a>';
     document.getElementById('feedback').style.color = "red";
     document.getElementById('toMap').classList.remove("map-hidden");
     export2txt(commonLocations); 
