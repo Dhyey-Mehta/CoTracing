@@ -50,20 +50,34 @@ async function compute(JSONPromise){
 
 async function SendtoDB(placeVisitPromise){
   let arrForPatient = await placeVisitPromise;
-  let database = firebase.database();
-  database.ref("patients/Counter").once("value").then(function(snapshot){
-  for(entrynum=0; entrynum<arrForPatient.length; entrynum++){
-    database.ref("patients/"+snapshot.val()+"/"+entrynum).set({
-      "latitude":arrForPatient[entrynum].latitude,
-      "longitude":arrForPatient[entrynum].longitude,
-      "startTime":arrForPatient[entrynum].startTime,
-      "endTime":arrForPatient[entrynum].endTime
-    });
+  if (arrForPatient.length==0){
+    document.getElementById("MainTxt").innerHTML="Submission unsuccessful! Please submit a valid file";
+    document.getElementById("MainTxt").style.color="Red";
+    document.getElementById("selectFiles").style.display = "none";
+    document.getElementById("import").style.display="none";
   }
-  database.ref("patients/"+snapshot.val()).update({Counter:arrForPatient.length});
-  database.ref("patients/Counter").set(snapshot.val()+1);
+  else{
+    let database = firebase.database();
+    database.ref("patients/Counter").once("value").then(function(snapshot){
+    for(entrynum=0; entrynum<arrForPatient.length; entrynum++){
+      database.ref("patients/"+snapshot.val()+"/"+entrynum).set({
+        "latitude":arrForPatient[entrynum].latitude,
+        "longitude":arrForPatient[entrynum].longitude,
+        "startTime":arrForPatient[entrynum].startTime,
+        "endTime":arrForPatient[entrynum].endTime
+      });
+    }
+    database.ref("patients/"+snapshot.val()).update({Counter:arrForPatient.length});
+    database.ref("patients/Counter").set(snapshot.val()+1);
 
-  });
+    });
+    document.getElementById("MainTxt").innerHTML="Submission successful!";
+    document.getElementById("MainTxt").style.color="Green";
+    document.getElementById("selectFiles").style.display = "none";
+    document.getElementById("import").style.display="none";
+
+  }
+
 }
 
 async function SendEmail(address, subject, body){
@@ -118,7 +132,9 @@ async function compare(placeVisitPromise){
   {
     document.getElementById('import').style.display = "none";
     document.getElementById('selectFiles').style.display = "none";
-    document.getElementById('feedback').innerHTML = "You have been in contact with COVID-19 patients "  + commonLocations.length + " times." + ' <a href="./about.html">Click Here To Learn The Next Steps</a>';
+    let times = " time. ";
+    if(commonLocations.length > 1) { times = " times. "; }
+    document.getElementById('feedback').innerHTML = "You have been in contact with COVID-19 patients "  + commonLocations.length + times + ' <a href="./about.html">Click Here To Learn The Next Steps</a>';
     document.getElementById('feedback').style.color = "red";
     document.getElementById('toMap').classList.remove("map-hidden");
     export2txt(commonLocations); 
@@ -130,30 +146,37 @@ async function compare(placeVisitPromise){
 async function getPatients()
 {
   let database = firebase.database();
-  let arr1 = (await database.ref("patients").once("value")).val();
-  let arr2 = [];
-  for(i =0 ; i < arr1.Counter; i++)
+  let patient = (await database.ref("patients").once("value")).val();
+  let patients = [];
+  for(i =0 ; i < patient.Counter; i++)
   {
-    arr2.push(arr1[i]);
+    patients.push(patient[i]);
   }
-  return arr2;
+  return patients;
 }
 async function runDCP(placeVisit)
 {
-  let arr = (await getPatients());
+  let patients = (await getPatients());
   console.log(arr[0][0].latitude);
-  compareDCP(placeVisit, arr);
+  let placeVisitArr = [];
+  for(i = 0; i < arr.length; i++)
+  {
+    placeVisitArr.push(placeVisit);
+  }
+  console.log(placeVisitArr);
+  compareDCP(placeVisitArr, patients);
 }
 async function compareDCP(placeVisit, patients){
   const { compute } = dcp;
   const resultsDiv = document.getElementById('results');
   var arr = patients;
+  var arr1 = placeVisit;
     // Create Job
         let job = compute.for(arr,
-        function(i, placeVisit) {
+        function(i, arr1) {
             progress(1);
-            return "abc";
-          }, placeVisit
+            return arr1[0];
+          }, arr1
         );
 
         // Listen for events
@@ -239,12 +262,4 @@ async function plotCommonLocations(commonLocationsPromise){
   document.getElementById("heatmap").scrollIntoView({ 
     behavior: 'smooth'
   });
-}
-
-function thankYou(){
-  document.getElementById("MainTxt").innerHTML="Submission successful!";
-  document.getElementById("MainTxt").style.color="Green";
-  document.getElementById("selectFiles").style.display = "none";
-  document.getElementById("import").style.display="none"
-
 }
