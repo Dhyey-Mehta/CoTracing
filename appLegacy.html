@@ -54,9 +54,9 @@
                 <td>
                     <div class="inner" style="margin: auto;">
                         <h2 style="font-family: sans-serif; color: red; text-align: center;">THIS APP CURRENTLY USES SAMPLE DATA AND IS NOT A SUITABLE SUBSTITUTE FOR PROPER MEDICAL ADVICE</h2>
-                        <p style="font-family: sans-serif; color: red; text-align: center;"><a href = "appLegacy.html">Don't have DCP? Click here for the legacy app</a></p>
+                        <p style="font-family: sans-serif; color: red; text-align: center;"><a href = "app.html">Want to use DCP? Click here for the newest app</a></p>
                         <input type="file" id="selectFiles" value="Import" accept="application/json" /> <!--application/geo+json would be more appropriate but doesnt autofill file ext-->
-                        <button id="import" onclick="runDCPOuter(compute(loadJSON(document.getElementById('selectFiles').files)))">Import</button>
+                        <button id="import" onclick="compare(compute(loadJSON(document.getElementById('selectFiles').files)))">Import</button>
                     </div>
                 </td>
             </tr>

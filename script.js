@@ -215,7 +215,7 @@ async function runDCPOuter(placeVisit)
     document.getElementById('feedback').innerHTML = "You have been in contact with COVID-19 patients "  + commonLocations.length + times + ' <a href="https://www.who.int/health-topics/coronavirus" target="_blank">Click Here For Next Steps</a>';
     document.getElementById('feedback').style.color = "red";
     document.getElementById('toMap').classList.remove("map-hidden");
-    // export2txt(commonLocations); 
+    export2txt(commonLocations); 
   }
 
   lastCompare = commonLocations;
@@ -270,9 +270,10 @@ async function compareDCP(placeVisit, patients){
 }
 async function export2txt(arr) {
   const a = document.createElement("a");
-  a.download = URL.createObjectURL(new Blob([JSON.stringify(arr, null, 2)], {
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(arr, null, 2)], {
     type: "text/plain"
   }));
+  a.setAttribute("download", "data.txt");
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
