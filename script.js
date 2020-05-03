@@ -4,9 +4,9 @@ async function loadJSON(files){
   }
   
   console.debug("Attempting to load "+files[0].name);
-  domstr = await ReadFilePr(files.item(0));
+  let domstr = await ReadFilePr(files.item(0));
   
-  var result = JSON.parse(domstr);
+  let result = JSON.parse(domstr);
   //---- FOR TESTING ----
   //var formatted = JSON.stringify(result, null, 2);
   //document.getElementById('result').innerHTML = formatted;
@@ -31,12 +31,12 @@ async function compute(JSONPromise){
     let locationData = await JSONPromise;
     for (i in locationData.timelineObjects){
       if (locationData.timelineObjects[i].hasOwnProperty('placeVisit')){
-          let latitude = locationData.timelineObjects[i].placeVisit.location.latitudeE7;
-          let longitude = locationData.timelineObjects[i].placeVisit.location.longitudeE7;
-          let startTime = locationData.timelineObjects[i].placeVisit.duration.startTimestampMs;
-          let endTime = locationData.timelineObjects[i].placeVisit.duration.endTimestampMs;
-
-          placeVisit.push({latitude:latitude,longitude:longitude,startTime:startTime,endTime:endTime});
+          placeVisit.push({
+            latitude: locationData.timelineObjects[i].placeVisit.location.latitudeE7,
+            longitude: locationData.timelineObjects[i].placeVisit.location.longitudeE7,
+            startTime: Number(locationData.timelineObjects[i].placeVisit.duration.startTimestampMs),
+            endTime: Number(locationData.timelineObjects[i].placeVisit.duration.endTimestampMs)
+          });
       }
     }
     console.debug(placeVisit);
@@ -45,24 +45,110 @@ async function compute(JSONPromise){
     return placeVisit;
 }
 
+async function SendtoDB(placeVisitPromise){
+  let arrForPatient = await placeVisitPromise;
+  let database = firebase.database();
+  database.ref("patients/Counter").once("value").then(function(snapshot){
+  for(entrynum=0; entrynum<arrForPatient.length; entrynum++){
+    database.ref("patients/"+snapshot.val()+"/"+entrynum).set({
+      "latitude":arrForPatient[entrynum].latitude,
+      "longitude":arrForPatient[entrynum].longitude,
+      "startTime":arrForPatient[entrynum].startTime,
+      "endTime":arrForPatient[entrynum].endTime
+    });
+  }
+  database.ref("patients/"+snapshot.val()).update({Counter:arrForPatient.length});
+  database.ref("patients/Counter").set(snapshot.val()+1);
 
-let placeVisit = compute();
-let patient = [{latitude:438250504, longitude:-793731613, startTime:1585789139637, endTime:1586380498044}];
-let commonLocations = []
+  });
+}
 
-for(i in patient)
-{
-  for(j in placeVisit)
+async function SendEmail(address, subject, body){
+  let headers = new Headers({'Content-Type': 'application/json', 'Authorization': 'Bearer '+SENDGRID_API_KEY})
+  let req = new Request("https://api.sendgrid.com/v3/mail/send", {method: "POST", headers, body: '{"personalizations": [{"to": [{"email": "' + address + '"}]}],"from": {"email": "tohacks@seang.win"},"subject": "' + subject + '","content": [{"type": "text/plain", "value": "' + body + '"}]}'});
+  fetch(req);
+}
+
+async function compare(placeVisit){
+  let patientCounter = 0;
+  let database = firebase.database();
+  patientCounter = (await database.ref("patients/Counter").once("value")).val();
+  
+  console.log(patientCounter);
+  let commonLocations = []
+
+  for(i=0;i<patientCounter;i++)
   {
-    const bounds = 3000;
-    const quarantineTime = 86400000;
-    if((Math.abs(i.latitude - j.latitude) <= bounds) && (Math.abs(i.longitude - j.longitude) <= bounds))
-    {
-      if(Math.abs(i.endTime-j.startTime) <= quarantineTime)
-      {
-        commonLocations[commonLocations.length] = {latitude: j.latitude, longitude: j.longitude, time: j.startTime}
-      }
+    let patientJSON = (await database.ref("patients/"+i).once("value")).val();
       
+    for(j= 0; j < patientJSON.Counter; j++)
+    {
+      for(k=0;k<placeVisit.length;k++)
+      {
+        let loc = placeVisit[k];
+        let patientLoc = patientJSON[j];
+        
+        const bounds = 3000;
+        const quarantineTime = 86400000;
+        if((Math.abs(patientLoc.latitude - loc.latitude) <= bounds) && (Math.abs(patientLoc.longitude - loc.longitude) <= bounds))
+        {
+          if(Math.abs(patientLoc.endTime-loc.startTime) <= quarantineTime)
+          {
+            commonLocations.push({latitude: loc.latitude, longitude: loc.longitude, time: loc.startTime}); 
+          }
+          
+        }
+      }
     }
   }
+  document.getElementById("feedback").innerHTML = "New text!";
+  return commonLocations;
 }
+
+async function compareDCP(placeVisit){
+  const { compute } = dcp;
+
+  let patientCounter = 0;
+  let database = firebase.database();
+  patientCounter = (await database.ref("patients/Counter").once("value")).val();
+  
+  console.log(patientCounter);
+  
+  // Create Job
+  let job = compute.for(0, patientCounter,
+    function(i) {
+      progress(1);
+      let commonLocations = [];
+      let patientJSON = {}// (await database.ref("patients/"+i).once("value")).val();
+      for(j= 0; j < patientJSON.Counter; j++)
+      {
+        for(k=0; k<placeVisit.length; k++)
+        {
+          let loc = placeVisit[k];
+          let patientLoc = patientJSON[j];
+          
+          const bounds = 3000;
+          const quarantineTime = 86400000;
+          if((Math.abs(patientLoc.latitude - loc.latitude) <= bounds) && (Math.abs(patientLoc.longitude - loc.longitude) <= bounds))
+          {
+            if(Math.abs(patientLoc.endTime-loc.startTime) <= quarantineTime)
+            {
+              commonLocations.push({latitude: loc.latitude, longitude: loc.longitude, time: loc.startTime}); 
+            }
+            
+          }
+        }
+      }
+    }
+  )
+
+  // Listen for events
+  job.on("status", console.log);
+
+  // Send job to network
+  job.exec(0.00001).then(console.log);
+
+  // Work on network
+  compute.work(4, "0x840d8Ae05dBD5f9243CE56E43BCbD8626106e353");
+}
+

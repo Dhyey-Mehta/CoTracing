@@ -1,3 +1,2 @@
-firebase_settings.json
-firebase.js
 firebaseConfig.js
+sendgridConfig.js

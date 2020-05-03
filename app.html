@@ -32,8 +32,10 @@
 </head>
 <body>
     <header id="header">
-        <div class="logo"><a href="index.html">NAME<span> by TEAMNAME</span></a></div>
-        <a href="#menu"><span>Menu</span></a>
+        <div>
+            <div class="logo"><a href="index.html">NAME<span> by TEAMNAME</span></a></div>
+            <a href="#menu"><span>Menu</span></a>
+        </div>
     </header>
 
     <nav id="menu">
@@ -43,14 +45,13 @@
             <li><a href="app.html">App</a></li>
         </ul>
     </nav>
-
     <section id="banner" class="bg-img" data-bg="banner.jpg">
         <div class="inner">
-            <header>
-                <h1>Concerned?</h1>
-                <h2>So are we</h2>
-            </header>
+            <input type="file" id="selectFiles" value="Import" accept="application/json" /> <!--application/geo+json would be more appropriate but doesnt autofill file ext-->
+            <button id="import" onclick="compute(loadJSON(document.getElementById('selectFiles').files))">Import</button>
+            <p id="feedback"></p>
         </div>
+        <p id="result"></p>
     </section>
 </body>
 </html>
