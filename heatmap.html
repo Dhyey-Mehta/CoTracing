@@ -134,13 +134,18 @@
         let database = firebase.database();
         patientCounter = (await database.ref("patients/Counter").once("value")).val();
         console.debug(patientCounter);
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> 66be00d20972dc9ed9918a1703603bde3f7315e6
         for(i=0;i<patientCounter;i++)
         {
             let patientJSON = (await database.ref("patients/"+i).once("value")).val();
             for(j= 0; j < patientJSON.Counter; j++)
             {
                 let loc = patientJSON[j];
+                console.log(loc.latitude/10000000 + " " + loc.longitude/10000000);
                 results.push(new google.maps.LatLng(loc.latitude/10000000, loc.longitude/10000000)); 
                 
             }
