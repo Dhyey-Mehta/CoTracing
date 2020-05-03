@@ -142,8 +142,8 @@
             for(j= 0; j < patientJSON.Counter; j++)
             {
                 let loc = patientJSON[j];
-                results.push(j); 
-                //new google.maps.LatLng(loc.latitude/10000000, loc.longitude/10000000)
+                results.push(new google.maps.LatLng(loc.latitude/10000000, loc.longitude/10000000)); 
+                
             }
         }
         return results;
