@@ -134,11 +134,7 @@
         let database = firebase.database();
         patientCounter = (await database.ref("patients/Counter").once("value")).val();
         console.debug(patientCounter);
-<<<<<<< HEAD
-
-=======
         
->>>>>>> 66be00d20972dc9ed9918a1703603bde3f7315e6
         for(i=0;i<patientCounter;i++)
         {
             let patientJSON = (await database.ref("patients/"+i).once("value")).val();
