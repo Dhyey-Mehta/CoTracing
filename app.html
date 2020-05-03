@@ -27,7 +27,7 @@
         firebase.analytics();
     </script>
 
-    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDZZ3x62zhq7pTLmJB3cSrPyCyApkMnWbE&callback=initMap"></script>
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDZZ3x62zhq7pTLmJB3cSrPyCyApkMnWbE&callback=mapReady"></script>
 
     <!-- Import Script -->
     <script src="./script.js"></script>
@@ -46,20 +46,33 @@
             <li><a href="about.html">About this project</a></li>
             <li><a href="app.html">App</a></li>
             <li><a href="submit.html">Submit Patient Data</a></li>
+            <li><a href="instruct.html">How to use</a></li>
         </ul>
     </nav>
     <section id="banner" class="bg-img" data-bg="banner.jpg">
-        <div class="inner">
-            <h2 style="font-family: sans-serif; color: red;">THIS APP CURRENTLY USES SAMPLE DATA AND IS NOT A SUITABLE SUBSTITUTE FOR PROPER MEDICAL ADVICE</h1>
-            <input type="file" id="selectFiles" value="Import" accept="application/json" /> <!--application/geo+json would be more appropriate but doesnt autofill file ext-->
-            <button id="import" onclick="compare(compute(loadJSON(document.getElementById('selectFiles').files)))">Import</button>
-        </div>
-        <p id="feedback" style="font-size:32px"></p>
-        <p id="result" style="font-size:10px"></p>
+        <table>
+            <tr>
+                <td>
+                    <div class="inner" style="margin: auto;">
+                        <h2 style="font-family: sans-serif; color: red; text-align: center;">THIS APP CURRENTLY USES SAMPLE DATA AND IS NOT A SUITABLE SUBSTITUTE FOR PROPER MEDICAL ADVICE</h2>
+                        <input type="file" id="selectFiles" value="Import" accept="application/json" /> <!--application/geo+json would be more appropriate but doesnt autofill file ext-->
+                        <button id="import" onclick="compare(compute(loadJSON(document.getElementById('selectFiles').files)))">Import</button>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div class="inner" style="margin: auto;">
+                        <p id="feedback" style="font-size:32px"></p>
+                        <button id="toMap" class="map-hidden" onclick="plotCommonLocations(lastCompare); document.getElementById('toMap').disabled = true;">See Locations of contact</button>
+                    </div>
+                </td>
+            </tr>
+        </table>
     </section>
-    <section id="one" class="bg-img" data-bg="pic002.jpg" style="background-image: url('images/pic002.jpg'); margin: 5vh 0vh;">
+    <section id="one" class="bg-img map-hidden" data-bg="pic002.jpg" style="background-image: url('images/pic002.jpg'); margin: 5vh 0vh;">
         <div class="inner" style="margin: auto;">
-            <div id="heatmap" class="map" style=""></div>
+            <div id="heatmap" class="map map-hidden"></div>
         </div>
     </section>
 </body>

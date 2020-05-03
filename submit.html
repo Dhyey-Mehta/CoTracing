@@ -47,13 +47,14 @@
             <li><a href="about.html">About this project</a></li>
             <li><a href="app.html">App</a></li>
             <li><a href="submit.html">Submit Patient Data</a></li>
+            <li><a href="instruct.html">How to use</a></li>
         </ul>
     </nav>
     <section id="banner" class="bg-img" data-bg="banner.jpg">
         <div class="inner">
-            <h2>Submit Data of Patient who has been confirmed to have Covid-19</h2>
+            <h2 id="MainTxt">Submit Data of Patient who has been confirmed to have Covid-19</h2>
             <input type="file" id="selectFiles" value="Import" accept="application/json" /> <!--application/geo+json would be more appropriate but doesnt autofill file ext-->
-            <button id="import" onclick="SendtoDB(compute(loadJSON(document.getElementById('selectFiles').files)))">Import</button>
+            <button id="import" onclick="SendtoDB(compute(loadJSON(document.getElementById('selectFiles').files)));thankYou();">Import</button>
             
         </div>
       

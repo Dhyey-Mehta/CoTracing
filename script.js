@@ -1,3 +1,6 @@
+var isMapReady = false;
+var lastCompare
+
 async function loadJSON(files){
   if (files.length <= 0) {
     return false;
@@ -96,7 +99,8 @@ async function compare(placeVisitPromise){
         {
           if(Math.abs(patientLoc.endTime-loc.startTime) <= quarantineTime)
           {
-            commonLocations.push({latitude: loc.latitude, longitude: loc.longitude, time: loc.startTime}); 
+            
+            commonLocations.push({longitude: loc.longitude, latitude: loc.latitude, time: loc.startTime}); 
           }
           
         }
@@ -104,78 +108,65 @@ async function compare(placeVisitPromise){
     }
   }
   if(commonLocations.length == 0){
+    document.getElementById('selectFiles').style.display = "none";
+    document.getElementById('import').style.display = "none";
     document.getElementById('feedback').innerHTML = "You have not been in contact with COVID-19 patients.";
     document.getElementById('feedback').style.color = "green";
+    
   }
   else
   {
+    document.getElementById('import').style.display = "none";
+    document.getElementById('selectFiles').style.display = "none";
     document.getElementById('feedback').innerHTML = "You have been in contact with COVID-19 patients "  + commonLocations.length + " times." + ' <a href="./about.html">Click Here To Learn The Next Steps</a>';
     document.getElementById('feedback').style.color = "red";
+    document.getElementById('toMap').classList.remove("map-hidden");
+    export2txt(commonLocations); 
   }
-  export2txt(commonLocations);
+
+  lastCompare = commonLocations;
   return commonLocations;
 }
-
-async function compareDCP(placeVisit){
-  const { compute } = dcp;
-
-  let patientCounter = 0;
+async function getPatients()
+{
   let database = firebase.database();
-  patientCounter = (await database.ref("patients/Counter").once("value")).val();
-  
-  console.debug(patientCounter);
-  
-  // Create Job
-  let job = compute.for(0, patientCounter,
-    function(i, placeVisit) {
-      progress(1);
-      let commonLocations = [];
-      let patientJSON = {};//(await database.ref("patients/"+i).once("value")).val();
-      for(j= 0; j < patientJSON.Counter; j++)
-      {
-        for(k=0; k<placeVisit.length; k++)
-        {
-          let loc = placeVisit[k];
-          let patientLoc = patientJSON[j];
-          
-          const bounds = 3000;
-          const quarantineTime = 86400000;
-          if((Math.abs(patientLoc.latitude - loc.latitude) <= bounds) && (Math.abs(patientLoc.longitude - loc.longitude) <= bounds))
-          {
-            if(Math.abs(patientLoc.endTime-loc.startTime) <= quarantineTime)
-            {
-              commonLocations.push({latitude: loc.latitude, longitude: loc.longitude, time: loc.startTime}); 
-            }
-            
-          }
-        }
-      }
-    }, placeVisit
-  )
-
-  // Listen for events
-  job.on("status", console.log);
-
-  // Send job to network
-  let resultHandle = await job.exec(0.00001);
-  let results = resultHandle.values();
-  for(q = 0; q < results.length; q++)
+  let arr1 = (await database.ref("patients").once("value")).val();
+  let arr2 = [];
+  for(i =0 ; i < arr1.Counter; i++)
   {
-    for(result in results[q])
-    {
-      commonLocations.push(result);
-    }
+    arr2.push(arr1[i]);
   }
+  return arr2;
+}
+async function runDCP(placeVisit)
+{
+  let arr = (await getPatients());
+  console.log(arr[0][0].latitude);
+  compareDCP(placeVisit, arr);
+}
+async function compareDCP(placeVisit, patients){
+  const { compute } = dcp;
+  const resultsDiv = document.getElementById('results');
+  var arr = patients;
+    // Create Job
+        let job = compute.for(arr,
+        function(i, placeVisit) {
+            progress(1);
+            return "abc";
+          }, placeVisit
+        );
 
-  // Work on network
-  compute.work(1, "0x840d8Ae05dBD5f9243CE56E43BCbD8626106e353");
+        // Listen for events
+        job.on('status', console.log);
+        job.on('result', ev => console.log(ev.sliceNumber + ":" + ev.result));
+        // Send job to network
+        job.exec(0.00001);
 }
 async function export2txt(arr) {
   const a = document.createElement("a");
-  a.href = URL.createObjectURL(new Blob([JSON.stringify(arr, null, 2)], {
+  a.download = URL.createObjectURL(new Blob([JSON.stringify(arr, null, 2)], {
     type: "text/plain"
   }));
-  a.setAttribute("download", "data.txt");
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
@@ -202,7 +193,58 @@ async function export2txt(arr) {
 
 function initMap() {
   map = new google.maps.Map(document.getElementById('heatmap'), {
-      center: {lat: -34.397, lng: 150.644},
+      center: {lat: 0, lng: 0},
       zoom: 8
   });
+}
+
+function mapReady() {
+  isMapReady = true;
+}
+
+function geocodeLatLng(lat, lng) {
+  var latlng = {lat: lat/10000000, lng: lng/10000000};
+  var geocoder = new google.maps.Geocoder;
+  return new Promise(function(resolve, reject) {
+    geocoder.geocode({'location': latlng}, function(results, status) {
+      console.log(status);
+      if (status === 'OK') {
+          console.log(results);
+          resolve(results[0].formatted_address);
+      } else {
+          // reject(new Error('Couldnt\'t find the location ' + latlng));
+          resolve('Couldnt\'t find the location ' + latlng.lat + " " + latlng.lng);
+      }
+    })
+  })
+}
+
+async function plotCommonLocations(commonLocationsPromise){
+  let commonLocations = await commonLocationsPromise;
+  if(!commonLocations.length > 0 || !isMapReady) { return; }
+  initMap();
+  let elems = document.getElementsByClassName("map-hidden");
+  Array.from(elems).forEach(function(element){ element.classList.remove("map-hidden") });
+  commonLocations.forEach(function(location) {
+    let encounterTime = new Date(location.time);
+    let latlng = {lat: location.latitude/10000000, lng: location.longitude/10000000};
+    // console.log(latlng.lat+ " " +latlng.lng);
+    let marker = new google.maps.Marker({
+      position: latlng,
+      title: encounterTime.toLocaleDateString()
+    });
+    marker.setMap(map);
+  });
+  map.panTo({lat: commonLocations[0].latitude/10000000, lng: commonLocations[0].longitude/10000000});
+  document.getElementById("heatmap").scrollIntoView({ 
+    behavior: 'smooth'
+  });
+}
+
+function thankYou(){
+  document.getElementById("MainTxt").innerHTML="Submission successful!";
+  document.getElementById("MainTxt").style.color="Green";
+  document.getElementById("selectFiles").style.display = "none";
+  document.getElementById("import").style.display="none"
+
 }

@@ -10,12 +10,12 @@
 		border: 0;
 		font-size: 100%;
 		font: inherit;
-		vertical-align: baseline;
+		vertical-align: middle;
 	}
 
-	article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, section {
+	/* article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, section {
 		display: block;
-	}
+	} */
 
 	body {
 		line-height: 1;
@@ -2316,7 +2316,7 @@
 		margin-right: -2em;
 		opacity: 0;
 		width: 1em;
-		z-index: -1;
+		z-index: -10;
 	}
 
 		input[type="checkbox"] + label,
@@ -2786,16 +2786,20 @@
 
 			table.alt tbody tr td {
 				border: solid 1px;
-				border-left-width: 0;
-				border-top-width: 0;
+				text-align: center;
+				vertical-align: middle;
 			}
 
 				table.alt tbody tr td:first-child {
 					border-left-width: 1px;
+					text-align: center;
+					vertical-align: middle;
 				}
 
 			table.alt tbody tr:first-child td {
 				border-top-width: 1px;
+				text-align: center;
+				vertical-align: middle;
 			}
 
 			table.alt thead {
@@ -2808,10 +2812,14 @@
 
 	table tbody tr {
 		border-color: rgba(144, 144, 144, 0.25);
+		text-align: center;
+		vertical-align: middle;
 	}
 
 		table tbody tr:nth-child(2n + 1) {
 			background-color: rgba(144, 144, 144, 0.075);
+			text-align: center;
+			vertical-align: middle;
 		}
 
 	table th {
@@ -2828,6 +2836,8 @@
 
 	table.alt tbody tr td {
 		border-color: rgba(144, 144, 144, 0.25);
+		text-align: center;
+		vertical-align: middle;
 	}
 
 /* Wrapper */
@@ -3615,7 +3625,7 @@
 			transition: opacity 1s ease, transform 1s ease;
 			opacity: 1;
 			position: relative;
-			z-index: 2;
+			z-index: 0;
 		}
 
 		#banner h1 {
@@ -3696,7 +3706,7 @@
 			text-indent: 3em;
 			white-space: nowrap;
 			width: 3em;
-			z-index: 2;
+			z-index: 0;
 			border-radius: 100%;
 			text-decoration: none;
 		}
@@ -3747,7 +3757,7 @@
 			position: absolute;
 			top: 0;
 			width: 100%;
-			z-index: 1;
+			z-index: -1;
 		}
 
 		@media screen and (max-width: 980px) {
@@ -3811,6 +3821,7 @@
 
 		#post .inner {
 			margin: 0 auto;
+			text-align: center;
 		}
 
 		#post .button.icon {
@@ -3836,17 +3847,17 @@
 			}
 
 		#post ul.actions li {
-			width: 49.5%;
+			width: 100%;
 			margin: 0;
 			padding: 0;
 		}
 
 			#post ul.actions li:first-child {
-				text-align: left;
+				text-align: center;
 			}
 
 			#post ul.actions li:last-child {
-				text-align: right;
+				text-align: center;
 			}
 
 		@media screen and (max-width: 736px) {
@@ -3866,7 +3877,7 @@
 
 			#post ul.actions li {
 				display: inline-block;
-				width: 49%;
+				width: 100%;
 				margin: 0;
 				padding: 0;
 			}
@@ -3956,7 +3967,7 @@
 			transition: opacity 1.25s ease, transform 1s ease;
 			opacity: 0;
 			position: relative;
-			z-index: 2;
+			z-index: 0;
 		}
 
 			.post .inner.current {
@@ -3981,7 +3992,7 @@
 			position: absolute;
 			top: 0;
 			width: 100%;
-			z-index: 1;
+			z-index: -1;
 		}
 
 	@-moz-keyframes more {
@@ -4032,14 +4043,14 @@
 			color: rgba(255, 255, 255, 0.75);
 			display: block;
 			height: 3em;
-			left: 50%;
+			left: 100%;
 			margin-left: -1.5em;
 			overflow: hidden;
 			position: absolute;
 			text-indent: 3em;
 			white-space: nowrap;
 			width: 3em;
-			z-index: 2;
+			z-index: auto;
 			border-radius: 100%;
 			text-decoration: none;
 		}
