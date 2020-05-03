@@ -72,7 +72,7 @@ async function SendtoDB(placeVisitPromise){
 
     });
     document.getElementById("MainTxt").innerHTML="Submission successful!";
-    document.getElementById("MainTxt").style.color="Green";
+    document.getElementById("MainTxt").style.color="green";
     document.getElementById("selectFiles").style.display = "none";
     document.getElementById("import").style.display="none";
 
@@ -86,6 +86,7 @@ async function SendEmail(address, subject, body){
   fetch(req);
 }
 
+// LEGACY IMPLEMENTATION
 async function compare(placeVisitPromise){
   let placeVisit = await placeVisitPromise;
   let patientCounter = 0;
@@ -143,6 +144,7 @@ async function compare(placeVisitPromise){
   lastCompare = commonLocations;
   return commonLocations;
 }
+
 async function getPatients()
 {
   let database = firebase.database();
@@ -154,36 +156,112 @@ async function getPatients()
   }
   return patients;
 }
-async function runDCP(placeVisit)
+async function runDCPInner(placeVisitPromise)
 {
+  let placeVisit = await placeVisitPromise;
   let patients = (await getPatients());
-  console.log(arr[0][0].latitude);
+  
   let placeVisitArr = [];
-  for(i = 0; i < arr.length; i++)
+  for(i = 0; i < patients.length; i++)
   {
     placeVisitArr.push(placeVisit);
   }
   console.log(placeVisitArr);
-  compareDCP(placeVisitArr, patients);
+  let result = await compareDCP(placeVisitArr, patients);
+  console.log(result);
+  return result;
+  /*let resultsArr = await compareDCP(placeVisitArr, patients);
+  let returningArr = [];
+
+  for(i = 0; i < resultsArr.length; i++)
+  {
+    let arr = resultsArr[i];
+    for(j = 0; j < arr.length; j++)
+    {
+      returningArr.push(resultsArr[j]);
+    }
+  }
+  return returningArr;
+  */
 }
+async function runDCPOuter(placeVisit)
+{
+  document.getElementById('selectFiles').style.display = "none";
+  document.getElementById('import').style.display = "none";
+
+  document.getElementById('feedback').innerHTML = "Processing data, please wait...";
+  document.getElementById('feedback').style.color = "yellow";
+
+  let resultsArr = await runDCPInner(placeVisit);
+  console.log(resultsArr);
+  let commonLocations = [];
+
+  for(i = 0; i < resultsArr.length; i++)
+  {
+    let arr = resultsArr[i];
+    for(j = 0; j < arr.length; j++)
+    {
+      
+      commonLocations.push(arr[j]);
+    }
+  }
+  console.log(commonLocations);
+  if(commonLocations.length == 0){
+    document.getElementById('feedback').innerHTML = "You have not been in contact with COVID-19 patients.";
+    document.getElementById('feedback').style.color = "lightgreen";
+  }
+  else
+  {
+    let times = " time. ";
+    if(commonLocations.length > 1) { times = " times. "; }
+    document.getElementById('feedback').innerHTML = "You have been in contact with COVID-19 patients "  + commonLocations.length + times + ' <a href="./about.html">Click Here To Learn The Next Steps</a>';
+    document.getElementById('feedback').style.color = "red";
+    document.getElementById('toMap').classList.remove("map-hidden");
+    // export2txt(commonLocations); 
+  }
+
+  lastCompare = commonLocations;
+  return commonLocations;
+}
+
 async function compareDCP(placeVisit, patients){
   const { compute } = dcp;
-  const resultsDiv = document.getElementById('results');
   var arr = patients;
   var arr1 = placeVisit;
-    // Create Job
-        let job = compute.for(arr,
-        function(i, arr1) {
-            progress(1);
-            return arr1[0];
-          }, arr1
-        );
+  // Create Job
+  let job = compute.for(arr,
+  function(i, arr1) {
+      progress(1);
+      let commonLocations = [];
+      for(j=0; j < i.Counter; j++)
+      {
+        for(k=0;k<arr1.length;k++)
+        {
+          let loc = arr1[k];
+          let patientLoc = i[j];
+          
+          const bounds = 3000;
+          const quarantineTime = 86400000;
+          if((Math.abs(patientLoc.latitude - loc.latitude) <= bounds) && (Math.abs(patientLoc.longitude - loc.longitude) <= bounds))
+          {
+            if(Math.abs(patientLoc.endTime-loc.startTime) <= quarantineTime)
+            {
+              commonLocations.push({longitude: loc.longitude, latitude: loc.latitude, time: loc.startTime}); 
+            }
+            
+          }
+        }
+      }
 
-        // Listen for events
-        job.on('status', console.log);
-        job.on('result', ev => console.log(ev.sliceNumber + ":" + ev.result));
-        // Send job to network
-        job.exec(0.00001);
+      return commonLocations;
+    }, arr1
+  );
+
+  // Listen for events
+  let resultHandle = await job.exec(0.00001);
+  let results = resultHandle.values();
+  console.log(results);
+  return results;
 }
 async function export2txt(arr) {
   const a = document.createElement("a");
