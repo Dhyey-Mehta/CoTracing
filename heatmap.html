@@ -127,14 +127,13 @@
       }
 
       // Heatmap data: 500 Points
-      function getPoints() {
+      async function getPoints() {
         let results = [];
         //new google.maps.LatLng(37.782551, -122.445368)
         let patientCounter = 0;
         let database = firebase.database();
         patientCounter = (await database.ref("patients/Counter").once("value")).val();
         console.debug(patientCounter);
-        let commonLocations = []
 
         for(i=0;i<patientCounter;i++)
         {
